@@ -26,7 +26,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://individual-project-livid.vercel.app/"
+      "https://individual-project-livid.vercel.app"
     ],
     credentials: true,
   })
