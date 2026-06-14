@@ -142,3 +142,55 @@ export const updateRequestStatus =
       });
     }
   };
+
+
+export const addMessageToRequest = async (
+  req,
+  res
+) => {
+  try {
+    const { text } = req.body;
+
+    const request = await AdoptionRequest.findById(
+      req.params.id
+    );
+
+    if (!request) {
+      return res.status(404).json({
+        message: "Request not found",
+      });
+    }
+
+    if (
+      req.user.role !== "admin" &&
+      request.user.toString() !== req.user.id
+    ) {
+      return res.status(403).json({
+        message:
+          "Not authorized to message on this request",
+      });
+    }
+
+    request.messages.push({
+      sender:
+        req.user.role === "admin"
+          ? "admin"
+          : "user",
+      text,
+    });
+
+    await request.save();
+
+    const populatedRequest = await AdoptionRequest.findById(
+      request._id
+    )
+      .populate("user", "name email")
+      .populate("animal");
+
+    res.status(200).json(populatedRequest);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};

@@ -10,6 +10,7 @@ import AdminLayout from "../../layouts/AdminLayout";
 import {
   getAllRequests,
   updateRequestStatus,
+  sendRequestMessage,
 } from "../../services/adoptionService";
 
 import Loader from "../../components/Loader";
@@ -20,6 +21,9 @@ const ManageRequests = () => {
 
   const [loading, setLoading] =
     useState(true);
+
+  const [messageInputs, setMessageInputs] =
+    useState({});
 
   useEffect(() => {
     fetchRequests();
@@ -65,6 +69,40 @@ const ManageRequests = () => {
           error.response?.data
             ?.message ||
             "Failed to update request"
+        );
+      }
+    };
+
+  const handleSendMessage =
+    async (id, text) => {
+      if (!text?.trim()) {
+        return;
+      }
+
+      try {
+        const updated =
+          await sendRequestMessage(
+            id,
+            text
+          );
+
+        setRequests((prev) =>
+          prev.map((request) =>
+            request._id === id
+              ? updated
+              : request
+          )
+        );
+
+        setMessageInputs((prev) => ({
+          ...prev,
+          [id]: "",
+        }));
+      } catch (error) {
+        toast.error(
+          error.response?.data
+            ?.message ||
+            "Failed to send message"
         );
       }
     };
@@ -164,6 +202,63 @@ const ManageRequests = () => {
                   )}
                 </div>
 
+              </div>
+
+              <div className="mt-4 border-t pt-4 space-y-4">
+                <div className="space-y-3">
+                  {request.messages?.length > 0 ? (
+                    request.messages.map((message, index) => (
+                      <div
+                        key={index}
+                        className={`rounded-xl p-3 text-sm ${
+                          message.sender === "admin"
+                            ? "bg-orange-100 text-orange-900"
+                            : "bg-gray-100 text-gray-900"
+                        }`}
+                      >
+                        <div className="font-semibold text-xs uppercase tracking-wide mb-1">
+                          {message.sender === "admin"
+                            ? "Admin"
+                            : request.user?.name || "Client"}
+                        </div>
+                        <p>{message.text}</p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {new Date(message.createdAt).toLocaleString()}
+                        </p>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-gray-500">
+                      No messages yet.
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="text"
+                    placeholder="Send a message"
+                    value={messageInputs[request._id] || ""}
+                    onChange={(e) =>
+                      setMessageInputs((prev) => ({
+                        ...prev,
+                        [request._id]: e.target.value,
+                      }))
+                    }
+                    className="flex-1 border rounded px-3 py-2"
+                  />
+                  <button
+                    onClick={() =>
+                      handleSendMessage(
+                        request._id,
+                        messageInputs[request._id]
+                      )
+                    }
+                    className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded"
+                  >
+                    Send
+                  </button>
+                </div>
               </div>
             </div>
           ))}

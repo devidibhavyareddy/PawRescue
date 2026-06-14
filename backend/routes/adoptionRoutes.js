@@ -5,6 +5,7 @@ import {
   getMyRequests,
   getAllRequests,
   updateRequestStatus,
+  addMessageToRequest,
 } from "../controllers/adoptionController.js";
 
 import protect from "../middleware/authMiddleware.js";
@@ -40,6 +41,12 @@ router.put(
   protect,
   adminOnly,
   updateRequestStatus
+);
+
+router.post(
+  "/:id/messages",
+  protect,
+  addMessageToRequest
 );
 
 export default router;

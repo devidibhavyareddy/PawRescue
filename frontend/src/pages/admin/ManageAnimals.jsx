@@ -14,6 +14,7 @@ import AdminLayout from "../../layouts/AdminLayout";
 import {
   getAnimals,
   deleteAnimal,
+  updateAnimal,
 } from "../../services/animalService";
 
 import Loader from "../../components/Loader";
@@ -24,6 +25,9 @@ const ManageAnimals = () => {
 
   const [loading, setLoading] =
     useState(true);
+
+  const [updatingId, setUpdatingId] =
+    useState(null);
 
   useEffect(() => {
     fetchAnimals();
@@ -42,6 +46,36 @@ const ManageAnimals = () => {
         );
       } finally {
         setLoading(false);
+      }
+    };
+
+  const handleStatusChange =
+    async (id, status) => {
+      try {
+        setUpdatingId(id);
+        await updateAnimal(id, {
+          status,
+        });
+
+        setAnimals((prev) =>
+          prev.map((animal) =>
+            animal._id === id
+              ? { ...animal, status }
+              : animal
+          )
+        );
+
+        toast.success(
+          "Animal status updated"
+        );
+      } catch (error) {
+        toast.error(
+          error.response?.data
+            ?.message ||
+            "Failed to update status"
+        );
+      } finally {
+        setUpdatingId(null);
       }
     };
 
@@ -135,9 +169,32 @@ const ManageAnimals = () => {
                     {animal.age}
                   </td>
                   <td className="p-4">
-                    <span className="bg-orange-100 text-orange-700 px-2 py-1 rounded text-sm">
-                      {animal.status}
-                    </span>
+                    <select
+                      value={animal.status}
+                      onChange={(e) =>
+                        handleStatusChange(
+                          animal._id,
+                          e.target.value
+                        )
+                      }
+                      disabled={
+                        updatingId === animal._id
+                      }
+                      className="border p-2 rounded w-full"
+                    >
+                      <option value="Rescued">
+                        Rescued
+                      </option>
+                      <option value="Under Care">
+                        Under Care
+                      </option>
+                      <option value="Ready For Adoption">
+                        Ready For Adoption
+                      </option>
+                      <option value="Adopted">
+                        Adopted
+                      </option>
+                    </select>
                   </td>
                   <td className="p-4">
                     <div className="flex gap-3">

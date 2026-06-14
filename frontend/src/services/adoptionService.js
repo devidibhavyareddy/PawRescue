@@ -41,3 +41,14 @@ export const updateRequestStatus =
 
     return response.data;
   };
+
+export const sendRequestMessage =
+  async (id, text) => {
+    const response =
+      await axiosInstance.post(
+        `/adoptions/${id}/messages`,
+        { text }
+      );
+
+    return response.data;
+  };

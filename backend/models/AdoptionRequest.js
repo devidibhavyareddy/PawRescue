@@ -39,6 +39,24 @@ const adoptionRequestSchema = new mongoose.Schema(
       enum: ["Pending", "Approved", "Rejected"],
       default: "Pending",
     },
+
+    messages: [
+      {
+        sender: {
+          type: String,
+          enum: ["admin", "user"],
+          required: true,
+        },
+        text: {
+          type: String,
+          required: true,
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
   },
   {
     timestamps: true,
