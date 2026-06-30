@@ -26,7 +26,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://paw-rescue-rouge.vercel.app"
+      "https://paw-rescue-tau.vercel.app/"
     ],
     credentials: true,
   })
