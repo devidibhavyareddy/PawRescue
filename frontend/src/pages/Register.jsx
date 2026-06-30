@@ -17,8 +17,11 @@ const Register = () => {
 
   const [loading, setLoading] =
     useState(false);
+  const [error, setError] =
+    useState("");
 
   const handleChange = (e) => {
+    setError("");
     setFormData({
       ...formData,
       [e.target.name]:
@@ -30,6 +33,32 @@ const Register = () => {
     e
   ) => {
     e.preventDefault();
+
+    const gmailPattern =
+      /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+    const passwordPattern =
+      /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
+
+    if (!gmailPattern.test(formData.email)) {
+      setError(
+        "Please enter a valid Gmail address."
+      );
+      toast.error(
+        "Please enter a valid Gmail address."
+      );
+      return;
+    }
+
+    if (!passwordPattern.test(formData.password)) {
+      setError(
+        "Password must be at least 6 characters and include letters and numbers."
+      );
+      toast.error(
+        "Password must be at least 6 characters and include letters and numbers."
+      );
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -43,11 +72,12 @@ const Register = () => {
 
       navigate("/login");
     } catch (error) {
-      toast.error(
+      const message =
         error.response?.data
           ?.message ||
-          "Registration failed"
-      );
+        "Registration failed";
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -93,8 +123,15 @@ const Register = () => {
             onChange={
               handleChange
             }
+            pattern="[a-zA-Z0-9._%+-]+@gmail\.com"
             className="w-full border p-3 rounded mb-4"
           />
+
+          {error && (
+            <div className="text-red-600 text-sm mb-3">
+              {error}
+            </div>
+          )}
 
           <input
             type="password"
@@ -102,6 +139,7 @@ const Register = () => {
             placeholder="Password"
             required
             minLength={6}
+            pattern="(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}"
             value={
               formData.password
             }

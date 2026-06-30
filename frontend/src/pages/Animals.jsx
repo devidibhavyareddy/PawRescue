@@ -1,4 +1,5 @@
 import {
+  useContext,
   useEffect,
   useState,
 } from "react";
@@ -12,6 +13,8 @@ import {
 } from "../services/animalService";
 
 import AnimalCard from "../components/AnimalCard";
+import { AuthContext } from "../context/AuthContext";
+import { getFavorites } from "../services/favoriteService";
 
 import SearchBar from "../components/SearchBar";
 
@@ -24,8 +27,11 @@ const Animals = () => {
   const [animals, setAnimals] =
     useState([]);
 
+  const { user } = useContext(AuthContext);
   const [loading, setLoading] =
     useState(true);
+  const [favoriteIds, setFavoriteIds] =
+    useState([]);
 
   const [search, setSearch] =
     useState("");
@@ -41,6 +47,26 @@ const Animals = () => {
   useEffect(() => {
     fetchAnimals();
   }, []);
+
+  useEffect(() => {
+    if (!user) {
+      setFavoriteIds([]);
+      return;
+    }
+
+    const fetchUserFavorites = async () => {
+      try {
+        const data = await getFavorites();
+        setFavoriteIds(data.map((favorite) => favorite._id));
+      } catch (error) {
+        toast.error(
+          "Failed to load favorites"
+        );
+      }
+    };
+
+    fetchUserFavorites();
+  }, [user]);
 
   const fetchAnimals =
     async () => {
@@ -117,12 +143,11 @@ const Animals = () => {
               filteredAnimals.map(
                 (animal) => (
                   <AnimalCard
-                    key={
+                    key={animal._id}
+                    animal={animal}
+                    isFavorite={favoriteIds.includes(
                       animal._id
-                    }
-                    animal={
-                      animal
-                    }
+                    )}
                   />
                 )
               )

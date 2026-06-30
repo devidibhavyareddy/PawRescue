@@ -2,9 +2,10 @@ import { Link } from "react-router-dom";
 
 const AnimalCard = ({
   animal,
+  isFavorite,
 }) => {
   return (
-    <div className="bg-white shadow-md rounded-xl overflow-hidden">
+    <div className="relative bg-white shadow-md rounded-xl overflow-hidden">
 
       <img
         src={
@@ -14,6 +15,12 @@ const AnimalCard = ({
         alt={animal.name}
         className="w-full h-56 object-cover"
       />
+
+      {isFavorite && (
+        <div className="absolute top-3 right-3 bg-white/85 backdrop-blur rounded-full p-2 shadow">
+          <span className="text-red-500 text-xl">❤️</span>
+        </div>
+      )}
 
       <div className="p-4">
 

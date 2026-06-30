@@ -3,9 +3,32 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import generateToken from "../utils/generateToken.js";
 
+const isGmail = (email) => {
+  return /^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(
+    email.trim()
+  );
+};
+
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
+
+    if (!isGmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Please register with a valid Gmail address",
+      });
+    }
+
+    const passwordPattern =
+      /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
+
+    if (!passwordPattern.test(password)) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 6 characters long and include letters and numbers",
+      });
+    }
 
     const existingUser = await User.findOne({
       email,

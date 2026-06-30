@@ -21,8 +21,11 @@ const Login = () => {
 
   const [loading, setLoading] =
     useState(false);
+  const [error, setError] =
+    useState("");
 
   const handleChange = (e) => {
+    setError("");
     setFormData({
       ...formData,
       [e.target.name]:
@@ -55,11 +58,12 @@ const Login = () => {
         navigate("/animals");
       }
     } catch (error) {
-      toast.error(
+      const message =
         error.response?.data
           ?.message ||
-          "Login failed"
-      );
+        "Login failed";
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -107,6 +111,12 @@ const Login = () => {
             }
             className="w-full border p-3 rounded mb-4"
           />
+
+          {error && (
+            <div className="text-red-600 text-sm mb-3">
+              {error}
+            </div>
+          )}
 
           <button
             type="submit"

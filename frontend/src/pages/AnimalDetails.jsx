@@ -26,11 +26,6 @@ import {
   createRequest,
 } from "../services/adoptionService";
 
-import Timeline from "../components/Timeline";
-
-import {
-  getAnimalUpdates,
-} from "../services/updateService";
 
 import { AuthContext } from "../context/AuthContext";
 
@@ -56,12 +51,8 @@ const AnimalDetails = () => {
   const [address, setAddress] =
     useState("");
 
-  const [updates, setUpdates] =
-    useState([]);
-
   useEffect(() => {
     fetchAnimal();
-    fetchUpdates();
   }, [id]);
 
   const fetchAnimal =
@@ -79,18 +70,6 @@ const AnimalDetails = () => {
         navigate("/animals");
       } finally {
         setLoading(false);
-      }
-    };
-
-  const fetchUpdates =
-    async () => {
-      try {
-        const data =
-          await getAnimalUpdates(id);
-
-        setUpdates(data);
-      } catch (error) {
-        console.log(error);
       }
     };
 
@@ -133,8 +112,10 @@ const AnimalDetails = () => {
         return;
       }
 
+      const phoneDigits = phone.replace(/\D/g, "");
+
       if (
-        !phone.trim() ||
+        !phoneDigits ||
         !address.trim() ||
         !reason.trim()
       ) {
@@ -144,11 +125,18 @@ const AnimalDetails = () => {
         return;
       }
 
+      if (phoneDigits.length !== 10) {
+        toast.error(
+          "Phone number must be exactly 10 digits"
+        );
+        return;
+      }
+
       try {
         await createRequest({
           animalId:
             animal._id,
-          phone,
+          phone: phoneDigits,
           address,
           reason,
         });
@@ -243,9 +231,10 @@ const AnimalDetails = () => {
                 value={phone}
                 onChange={(e) =>
                   setPhone(
-                    e.target.value
+                    e.target.value.replace(/[^0-9]/g, "")
                   )
                 }
+                maxLength={10}
                 className="w-full border p-3 rounded mb-3"
                 placeholder="Phone number"
               />
@@ -301,10 +290,6 @@ const AnimalDetails = () => {
           )}
 
         </div>
-
-        <Timeline
-          updates={updates}
-        />
 
       </div>
     </MainLayout>
