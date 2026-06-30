@@ -25,7 +25,8 @@ const app = express();
 app.use(
   cors({
     origin: [
-      "http://localhost:5173"
+      "http://localhost:5173",
+      "paw-rescue-rouge.vercel.app"
     ],
     credentials: true,
   })
